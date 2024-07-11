@@ -15,10 +15,9 @@ func main() {
 		Version: "v0.0.1",
 		Commands: []*cli.Command{
 			{
-				Name:    "schema-from-json",
-				Usage:   "Create a JSON schema from the specified JSON file",
-				Aliases: []string{"sfj"},
-				Action:  actions.SchemaFromJsonAction,
+				Name:   "schema-from-json",
+				Usage:  "Create a JSON schema from the specified JSON file",
+				Action: actions.SchemaFromJsonAction,
 			},
 		},
 	}
