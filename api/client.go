@@ -24,11 +24,11 @@ func (c FCApiClient) CallPublicConvertor(payload string) {
 		"to":   "schema",
 		"code": payload,
 	}
-	result := c.callPublicAPI(convertorPayload)
+	result := c.callPublicAPI(CONVERTOR_URL_TEMPLATE, convertorPayload)
 	fmt.Println(result)
 }
 
-func (c FCApiClient) callPublicAPI(payload any) any {
+func (c FCApiClient) callPublicAPI(url string, payload any) any {
 	client := resty.New()
 
 	var response any
@@ -36,7 +36,7 @@ func (c FCApiClient) callPublicAPI(payload any) any {
 		SetHeader("Content-Type", "application/json").
 		SetBody(payload).
 		SetResult(&response).
-		Post(fmt.Sprintf(CONVERTOR_URL_TEMPLATE, utils.GetFCHost()))
+		Post(fmt.Sprintf(url, utils.GetFCHost()))
 	if err != nil {
 		log.Fatalf("Error making fucioncatalyst server HTTP request: %v", err)
 	}
