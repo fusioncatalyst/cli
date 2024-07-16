@@ -24,8 +24,7 @@ func (c FCApiClient) CallPublicConvertor(payload string) {
 		"to":   "schema",
 		"code": payload,
 	}
-	result := c.callPublicAPI(CONVERTOR_URL_TEMPLATE, convertorPayload)
-	fmt.Println(result)
+	_ = c.callPublicAPI(CONVERTOR_URL_TEMPLATE, convertorPayload)
 }
 
 func (c FCApiClient) callPublicAPI(url string, payload any) any {

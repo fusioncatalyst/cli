@@ -47,4 +47,8 @@ func TestPublicToolsConvertor(t *testing.T) {
 	// Test 3: invalid JSON content
 	err = app.Run([]string{"cmd", "schema-from-json", "./testfiles/json_but_not_json.json"})
 	assert.Contains(t, err.Error(), "Invalid JSON content")
+
+	// Test 4: JSON content
+	err = app.Run([]string{"cmd", "schema-from-json", "./testfiles/valid_json_1.json"})
+	//assert.Contains(t, err.Error(), "Invalid JSON content")
 }

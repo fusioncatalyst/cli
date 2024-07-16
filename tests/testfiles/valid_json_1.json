@@ -1,0 +1,9 @@
+{
+  "name": "Fname",
+  "age": 25,
+  "address": {
+    "city": "New York",
+    "state": "NY",
+    "postalCode": "10021"
+  }
+}

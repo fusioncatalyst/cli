@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"github.com/fusioncatalyst/cli/api"
 	"github.com/fusioncatalyst/cli/utils"
 	"github.com/urfave/cli/v2"
 	"io"
@@ -31,6 +32,10 @@ func SchemaFromJsonAction(cCtx *cli.Context) error {
 	if !utils.IsValidJSON(stringContent) {
 		return cli.Exit(fmt.Sprintf("Invalid JSON content in the file: %s", jsonFilePath), 1)
 	}
+
+	// Call the FusionCatalyst API to convert JSON to schema
+	apiClient := api.NewFCApiClient(utils.GetFCHost())
+	apiClient.CallPublicConvertor(stringContent)
 
 	return nil
 }
