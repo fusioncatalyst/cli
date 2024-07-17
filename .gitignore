@@ -22,3 +22,4 @@ go.work
 go.work.sum
 .idea
 tests/.env
+tests/testfiles/outputs/*.json

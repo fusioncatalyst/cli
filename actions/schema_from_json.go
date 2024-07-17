@@ -7,21 +7,20 @@ import (
 	"github.com/fusioncatalyst/cli/utils"
 	"github.com/urfave/cli/v2"
 	"io"
-	"log"
 	"os"
 )
 
 func SchemaFromJsonAction(cCtx *cli.Context) error {
 	jsonFilePath := cCtx.Args().Get(0)
 
-	// Open the JSON file
+	// Open the JSON outputFile
 	jsonFile, err := os.Open(jsonFilePath)
 	if err != nil {
 		return cli.Exit(fmt.Sprintf("Error opening JSON file: %v", err), 1)
 	}
 	defer jsonFile.Close()
 
-	// Read the file content
+	// Read the outputFile content
 	byteContent, err := io.ReadAll(jsonFile)
 	if err != nil {
 		return cli.Exit(fmt.Sprintf("Error reading JSON file: %v", err), 1)
@@ -39,16 +38,27 @@ func SchemaFromJsonAction(cCtx *cli.Context) error {
 	var data interface{}
 	err = json.Unmarshal([]byte(apiResponse.Response), &data)
 	if err != nil {
-		log.Fatalf("Error unmarshaling raw JSON: %v", err)
+		return cli.Exit(fmt.Sprintf("Error unmarshaling raw JSON: %v", err), 1)
 	}
 
 	// Marshal the interface{} back to JSON with indentation
 	prettyJSON, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		log.Fatalf("Error marshaling JSON: %v", err)
+		return cli.Exit(fmt.Sprintf("Error marshaling JSON: %v", err), 1)
 	}
 
-	fmt.Println(string(prettyJSON))
+	// Write the JSON schema to an outputFile
+	outputFile, err := os.Create(cCtx.Args().Get(1))
+	if err != nil {
+		return cli.Exit(fmt.Sprintf("Failed to create output file: %s", err), 1)
+	}
+	defer outputFile.Close()
+
+	// Step 2: Write bytes to the outputFile
+	_, err = outputFile.Write(prettyJSON)
+	if err != nil {
+		return cli.Exit(fmt.Sprintf("Failed to write to output file: %s", err), 1)
+	}
 
 	return nil
 }
