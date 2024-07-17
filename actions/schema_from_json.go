@@ -12,10 +12,6 @@ import (
 )
 
 func SchemaFromJsonAction(cCtx *cli.Context) error {
-	if cCtx.NArg() == 0 {
-		return cli.Exit("Missing JSON file argument", 1)
-	}
-
 	jsonFilePath := cCtx.Args().Get(0)
 
 	// Open the JSON file
@@ -51,7 +47,7 @@ func SchemaFromJsonAction(cCtx *cli.Context) error {
 	if err != nil {
 		log.Fatalf("Error marshaling JSON: %v", err)
 	}
-	
+
 	fmt.Println(string(prettyJSON))
 
 	return nil

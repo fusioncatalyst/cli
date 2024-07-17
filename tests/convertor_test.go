@@ -40,15 +40,19 @@ func TestPublicToolsConvertor(t *testing.T) {
 	err = app.Run([]string{"cmd", "schema-from-json"})
 	assert.Contains(t, err.Error(), "Missing")
 
-	// Test 2: invalid file path
+	// Test 2: missing output parameter
 	err = app.Run([]string{"cmd", "schema-from-json", "./testfiles/invalid.json"})
+	assert.Contains(t, err.Error(), "Missing output file argument")
+
+	// Test 3: invalid file path
+	err = app.Run([]string{"cmd", "schema-from-json", "./testfiles/invalid.json", "./testifles/outputs/1.json"})
 	assert.Contains(t, err.Error(), "Error opening JSON file")
 
-	// Test 3: invalid JSON content
-	err = app.Run([]string{"cmd", "schema-from-json", "./testfiles/json_but_not_json.json"})
+	// Test 4: invalid JSON content
+	err = app.Run([]string{"cmd", "schema-from-json", "./testfiles/json_but_not_json.json", "./testifles/outputs/1.json"})
 	assert.Contains(t, err.Error(), "Invalid JSON content")
 
-	// Test 4: JSON content
-	err = app.Run([]string{"cmd", "schema-from-json", "./testfiles/valid_json_1.json"})
+	// Test 5: JSON content
+	err = app.Run([]string{"cmd", "schema-from-json", "./testfiles/valid_json_1.json", "./testifles/outputs/1.json"})
 	//assert.Contains(t, err.Error(), "Invalid JSON content")
 }

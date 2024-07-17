@@ -13,9 +13,20 @@ func GetAssembledApp() *cli.App {
 		Version: "v0.0.1",
 		Commands: []*cli.Command{
 			{
-				Name:   "schema-from-json",
-				Usage:  "Create a JSON schema from the specified JSON file",
-				Action: actions.SchemaFromJsonAction,
+				Name:      "schema-from-json",
+				Usage:     "Create a JSON schema from the specified JSON file",
+				Action:    actions.SchemaFromJsonAction,
+				ArgsUsage: "[arg1] [arg2]",
+				Before: func(c *cli.Context) error {
+					if c.NArg() == 0 {
+						return cli.Exit("Missing JSON file argument", 1)
+					}
+
+					if c.NArg() == 1 {
+						return cli.Exit("Missing output file argument", 1)
+					}
+					return nil
+				},
 			},
 		},
 	}
