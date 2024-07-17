@@ -1,11 +1,13 @@
 package actions
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/fusioncatalyst/cli/api"
 	"github.com/fusioncatalyst/cli/utils"
 	"github.com/urfave/cli/v2"
 	"io"
+	"log"
 	"os"
 )
 
@@ -35,7 +37,22 @@ func SchemaFromJsonAction(cCtx *cli.Context) error {
 
 	// Call the FusionCatalyst API to convert JSON to schema
 	apiClient := api.NewFCApiClient(utils.GetFCHost())
-	apiClient.CallPublicConvertor(stringContent)
+	apiResponse := apiClient.CallPublicConvertor(stringContent)
+
+	// Unmarshal the raw JSON into an interface{}
+	var data interface{}
+	err = json.Unmarshal([]byte(apiResponse.Response), &data)
+	if err != nil {
+		log.Fatalf("Error unmarshaling raw JSON: %v", err)
+	}
+
+	// Marshal the interface{} back to JSON with indentation
+	prettyJSON, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatalf("Error marshaling JSON: %v", err)
+	}
+	
+	fmt.Println(string(prettyJSON))
 
 	return nil
 }
