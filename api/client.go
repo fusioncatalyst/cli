@@ -78,22 +78,24 @@ func (c FCApiClient) CallPrivateNewProject(projectName string) (*contracts.Priva
 	return &specificData, nil
 }
 
-func (c FCApiClient) CallPrivateListProjects() []contracts.PrivateProjectsResponse {
-	response := c.callPrivateAPIGet(PROJECTS_URL_TEMPLATE)
+func (c FCApiClient) CallPrivateListProjects() (*[]contracts.PrivateProjectsResponse, error) {
+	response, e := c.callPrivateAPIGet(PROJECTS_URL_TEMPLATE)
+	if e != nil {
+		return nil, e
+	}
 
 	intermediateJSON, err := json.Marshal(response)
 	if err != nil {
-		log.Fatalf("Error marshaling map to JSON: %v", err)
+		return nil, errors.New(fmt.Sprintf("Error marshaling map to JSON: %v", err))
 	}
 
 	var specificData []contracts.PrivateProjectsResponse
 	err = json.Unmarshal(intermediateJSON, &specificData)
 	if err != nil {
-		log.Fatalf("Error unmarshaling into specific struct: %v", err)
+		return nil, errors.New(fmt.Sprintf("Error unmarshaling into specific struct: %v", err))
 	}
 
-	return specificData
-
+	return &specificData, nil
 }
 
 func (c FCApiClient) callPublicAPIPost(url string, payload any) any {
@@ -119,7 +121,7 @@ func (c FCApiClient) callPublicAPIPost(url string, payload any) any {
 	return response
 }
 
-func (c FCApiClient) callPrivateAPIGet(url string) any {
+func (c FCApiClient) callPrivateAPIGet(url string) (any, error) {
 	client := resty.New()
 
 	var response any
@@ -129,17 +131,15 @@ func (c FCApiClient) callPrivateAPIGet(url string) any {
 		SetAuthToken(c.getAPIKeyIfItExists()).
 		Get(fmt.Sprintf(url, utils.GetFCHost()))
 	if err != nil {
-		fmt.Println("Error making fucioncatalyst server HTTP request: %v", err)
-		os.Exit(1)
+		return nil, errors.New(fmt.Sprintf("Error making fucioncatalyst server HTTP request: %v", err))
 	}
 
 	if resp.IsError() {
-		fmt.Println("Error making fucioncatalyst server request. Server returned status: %d.\nError: %s",
-			resp.StatusCode(), resp.String())
-		os.Exit(1)
+		return nil, errors.New(fmt.Sprintf("Error making fucioncatalyst server request. Server returned status: %d.\n Error: %s",
+			resp.StatusCode(), resp.String()))
 	}
 
-	return response
+	return response, nil
 }
 
 func (c FCApiClient) callPrivateAPIPost(url string, payload any) (any, error) {

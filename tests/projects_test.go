@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"log"
+	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -38,4 +39,19 @@ func TestProjectsCRUD(t *testing.T) {
 	err = app.Run([]string{"cmd", "create-project", newUniqueProjectName})
 	assert.Contains(t, err.Error(), "Error making fucioncatalyst server request. Server returned status: 409")
 
+	// Test 3: list projects
+	old := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	err = app.Run([]string{"cmd", "list-projects"})
+
+	w.Close()
+	os.Stdout = old
+
+	var buf bytes.Buffer
+	_, _ = buf.ReadFrom(r)
+	o := buf.String()
+
+	assert.Contains(t, o, newUniqueProjectName)
 }
