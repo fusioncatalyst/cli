@@ -40,18 +40,21 @@ func TestProjectsCRUD(t *testing.T) {
 	assert.Contains(t, err.Error(), "Error making fucioncatalyst server request. Server returned status: 409")
 
 	// Test 3: list projects
+	captureOutput := captureSucessfullClIActionOutput(app.Run, []string{"cmd", "list-projects"})
+	assert.Contains(t, captureOutput, newUniqueProjectName)
+}
+
+func captureSucessfullClIActionOutput(f func(arguments []string) (err error), args []string) string {
 	old := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	err = app.Run([]string{"cmd", "list-projects"})
+	f(args)
 
 	w.Close()
 	os.Stdout = old
 
 	var buf bytes.Buffer
 	_, _ = buf.ReadFrom(r)
-	o := buf.String()
-
-	assert.Contains(t, o, newUniqueProjectName)
+	return buf.String()
 }
