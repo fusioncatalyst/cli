@@ -28,6 +28,24 @@ func GetAssembledApp() *cli.App {
 					return nil
 				},
 			},
+			{
+				Name:      "create-project",
+				Usage:     "Create a new project",
+				Action:    actions.CreateProjectAction,
+				ArgsUsage: "[arg1]",
+				Before: func(c *cli.Context) error {
+					if c.NArg() == 0 {
+						return cli.Exit("Missing project name", 1)
+					}
+
+					return nil
+				},
+			},
+			{
+				Name:   "list-projects",
+				Usage:  "List all projects available to current team",
+				Action: actions.ListProjectsAction,
+			},
 		},
 	}
 
