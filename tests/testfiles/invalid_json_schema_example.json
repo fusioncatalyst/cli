@@ -1,0 +1,55 @@
+{
+  "$##schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Person",
+  "type": "object",
+  "props": {
+    "name": {
+      "type": "string",
+      "description": "The person's full name."
+    },
+    "age": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The person's age in years."
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "The person's email address."
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "street": {
+          "type": "string",
+          "description": "The street name and number."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city of residence."
+        },
+        "state": {
+          "type": "string",
+          "description": "The state of residence."
+        },
+        "postalCode": {
+          "type": "string",
+          "pattern": "^[0-9]{5}(-[0-9]{4})?$",
+          "description": "The postal code, which can be 5 digits or 9 digits with a hyphen."
+        }
+      },
+      "required": ["street", "city", "state", "postalCode"],
+      "description": "The person's address."
+    },
+    "phoneNumbers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^\\+?[0-9\\-\\s]+$"
+      },
+      "description": "A list of phone numbers associated with the person."
+    }
+  },
+  "required": ["name", "age", "email", "address"],
+  "additionalProperties": false
+}

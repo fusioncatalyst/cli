@@ -46,6 +46,46 @@ func GetAssembledApp() *cli.App {
 				Usage:  "List all projects available to current team",
 				Action: actions.ListProjectsAction,
 			},
+			{
+				Name:   "new-schema",
+				Usage:  "Create a new schema from the specified JSON file and associate it with a project",
+				Action: actions.NewSchemaAction,
+				//ArgsUsage: "[schema-file]",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "project-id",
+						Usage:    "The UUID of the project to associate with this schema",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "file",
+						Usage:    "Full path to the file containing the schema",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "schema-name",
+						Usage:    "The name of the schema to reflect in the registry",
+						Required: true,
+					},
+				},
+				Before: func(c *cli.Context) error {
+					projectID := c.String("project-id")
+					if projectID == "" {
+						return cli.Exit("Missing required --project-id flag", 1)
+					}
+
+					schemaFile := c.String("file")
+					if schemaFile == "" {
+						return cli.Exit("Missing required --file flag", 1)
+					}
+
+					schemaName := c.String("schema-name")
+					if schemaName == "" {
+						return cli.Exit("Missing required --schema-name flag", 1)
+					}
+					return nil
+				},
+			},
 		},
 	}
 

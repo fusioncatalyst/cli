@@ -3,3 +3,6 @@ test_schema_convertor:
 
 test_projects_crud:
 	go test -v ./tests/projects_test.go
+
+test_schemas_crud:
+	go test -v ./tests/schemas_test.go
