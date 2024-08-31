@@ -29,16 +29,27 @@ func GetAssembledApp() *cli.App {
 				},
 			},
 			{
-				Name:      "create-project",
-				Usage:     "Create a new project",
-				Action:    actions.CreateProjectAction,
-				ArgsUsage: "[arg1]",
+				Name:   "create-project",
+				Usage:  "Create a new project",
+				Action: actions.CreateProjectAction,
 				Before: func(c *cli.Context) error {
-					if c.NArg() == 0 {
-						return cli.Exit("Missing project name", 1)
+					projectName := c.String("project-name")
+					if projectName == "" {
+						return cli.Exit("Missing required --project-name flag", 1)
 					}
-
 					return nil
+				},
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "project-name",
+						Usage:    "The name of the project to create",
+						Required: true,
+					},
+					&cli.BoolFlag{
+						Name:     "return-id",
+						Usage:    "If set, the UUID of the newly created schema will be returned",
+						Required: false,
+					},
 				},
 			},
 			{
@@ -50,7 +61,6 @@ func GetAssembledApp() *cli.App {
 				Name:   "new-schema",
 				Usage:  "Create a new schema from the specified JSON file and associate it with a project",
 				Action: actions.NewSchemaAction,
-				//ArgsUsage: "[schema-file]",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:     "project-id",
@@ -66,6 +76,11 @@ func GetAssembledApp() *cli.App {
 						Name:     "schema-name",
 						Usage:    "The name of the schema to reflect in the registry",
 						Required: true,
+					},
+					&cli.BoolFlag{
+						Name:     "return-id",
+						Usage:    "If set, the UUID of the newly created schema will be returned",
+						Required: false,
 					},
 				},
 				Before: func(c *cli.Context) error {

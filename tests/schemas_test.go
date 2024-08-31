@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -21,6 +22,11 @@ func TestSchemaCRUD(t *testing.T) {
 
 	if err != nil {
 		log.Println(".env file not found in current directory")
+	}
+
+	testProjectID, testProjectIDExists := os.LookupEnv("TEST_DATA_TEST_PROJECT_ID")
+	if !testProjectIDExists {
+		panic("TEST_DATA_TEST_PROJECT_ID not set")
 	}
 
 	app := common.GetAssembledApp()
@@ -45,13 +51,13 @@ func TestSchemaCRUD(t *testing.T) {
 	// Test 1: create a new schema
 	e := utils.CaptureSucessfulClIActionOutput(app.Run, []string{"cmd", "new-schema",
 		"--file", testValidFilePath,
-		"--project-id", "4dc2ba40-a6bf-478c-9f4c-3c1ccbf6be8f",
+		"--project-id", testProjectID,
 		"--schema-name", newUniqueSchemaName})
 
 	// Test 2: an attempt to create a new schema with same name again
 	e = utils.CaptureSucessfulClIActionOutput(app.Run, []string{"cmd", "new-schema",
 		"--file", testValidFilePath,
-		"--project-id", "4dc2ba40-a6bf-478c-9f4c-3c1ccbf6be8f",
+		"--project-id", testProjectID,
 		"--schema-name", newUniqueSchemaName})
 	assert.Contains(t, e, "Server returned status: 409")
 
@@ -61,7 +67,17 @@ func TestSchemaCRUD(t *testing.T) {
 	// Test 3: test invalid schema
 	e = utils.CaptureSucessfulClIActionOutput(app.Run, []string{"cmd", "new-schema",
 		"--file", testInvalidFilePath,
-		"--project-id", "4dc2ba40-a6bf-478c-9f4c-3c1ccbf6be8f",
+		"--project-id", testProjectID,
 		"--schema-name", newUniqueSchemaNameForInvalidSchemaTest})
 	assert.Contains(t, e, "Invalid JSON schema")
+
+	newUniqueSchemaNameAgain := fmt.Sprintf("schema%s", currentTimestamp)
+
+	// Test 4: create a new schema and return its ID
+	e = utils.CaptureSucessfulClIActionOutput(app.Run, []string{"cmd", "new-schema",
+		"--file", testValidFilePath,
+		"--project-id", testProjectID,
+		"--schema-name", newUniqueSchemaNameAgain,
+		"--return-id"})
+	assert.NotEmpty(t, e)
 }

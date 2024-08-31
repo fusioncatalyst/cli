@@ -13,6 +13,7 @@ func NewSchemaAction(cCtx *cli.Context) error {
 	patchToSchemaFile := cCtx.String("file")
 	projectID := cCtx.String("project-id")
 	schemaName := cCtx.String("schema-name")
+	returnID := cCtx.Bool("return-id")
 
 	// Open the schema file
 	schemaFile, err := os.Open(patchToSchemaFile)
@@ -30,9 +31,12 @@ func NewSchemaAction(cCtx *cli.Context) error {
 
 	// Call the FusionCatalyst API to create schema file
 	apiClient := api.NewFCApiClient(utils.GetFCHost())
-	_, e := apiClient.CallPrivateNewJSONSchema(fileContent, schemaName, projectID)
+	result, e := apiClient.CallPrivateNewJSONSchema(fileContent, schemaName, projectID)
 	if e != nil {
 		return cli.Exit(e.Error(), 1)
+	}
+	if returnID {
+		fmt.Println(result.ID)
 	}
 
 	return nil
