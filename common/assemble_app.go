@@ -101,6 +101,49 @@ func GetAssembledApp() *cli.App {
 					return nil
 				},
 			},
+			{
+				Name:   "get-schema",
+				Usage:  "Get schema by ID and render it into file (if needed)",
+				Action: actions.GetSchemaAction,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "schema-id",
+						Usage:    "The UUID of the schema to retrieve",
+						Required: true,
+					},
+					&cli.BoolFlag{
+						Name:     "to-file",
+						Usage:    "if set, the schema will be written to file with the schema name",
+						Required: false,
+					},
+					&cli.StringFlag{
+						Name:     "to-file-with-name",
+						Usage:    "If set, the schema will be written to file with the specified name",
+						Required: false,
+					},
+					&cli.BoolFlag{
+						Name:     "api-response",
+						Usage:    "If set, the schema will be returned as an API response",
+						Required: false,
+					},
+				},
+				Before: func(c *cli.Context) error {
+					schemaID := c.String("schema-id")
+					if schemaID == "" {
+						return cli.Exit("Missing required --schema-id flag", 1)
+					}
+
+					toFile := c.Bool("to-file")
+					toFileWithName := c.String("to-file-with-name")
+					apiResponse := c.Bool("api-response")
+
+					if (toFile && apiResponse) || (toFile && toFileWithName != "") || (apiResponse && toFileWithName != "") {
+						return cli.Exit("Only one of --to-file, --api-response, or --to-file-with-name can be set", 1)
+					}
+
+					return nil
+				},
+			},
 		},
 	}
 

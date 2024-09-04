@@ -13,7 +13,8 @@ import (
 
 const CONVERTOR_URL_TEMPLATE = "%s/v1/public/convertor"
 const PROJECTS_URL_TEMPLATE = "%s/v1/protected/projects"
-const SCHENAS_URL_TEMPLATE = "/v1/protected/projects/%s/schemas"
+const SCHEMAS_URL_TEMPLATE = "/v1/protected/projects/%s/schemas"
+const SINGLE_SCHEMA_URL_TEMPLATE = "/v1/protected/schemas/%s"
 
 type FCApiClient struct {
 	host string
@@ -99,6 +100,27 @@ func (c FCApiClient) CallPrivateListProjects() (*[]contracts.PrivateProjectsResp
 	return &specificData, nil
 }
 
+func (c FCApiClient) CallPrivateGetSchema(schemaID string) (*contracts.PrivateSchemaResponse, error) {
+	urlTemplate := fmt.Sprintf(SINGLE_SCHEMA_URL_TEMPLATE, schemaID)
+	response, e := c.callPrivateAPIGet("%s" + urlTemplate)
+	if e != nil {
+		return nil, e
+	}
+
+	intermediateJSON, err := json.Marshal(response)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Error marshaling map to JSON: %v", err))
+	}
+
+	var schemaResponse contracts.PrivateSchemaResponse
+	err = json.Unmarshal(intermediateJSON, &schemaResponse)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Error unmarshaling into specific struct: %v", err))
+	}
+
+	return &schemaResponse, nil
+}
+
 func (c FCApiClient) CallPrivateNewJSONSchema(schema string, schemaName string, projectID string) (*contracts.PrivateSchemaResponse, error) {
 	payload := fmt.Sprintf(`{
 		"name": "%s",
@@ -106,7 +128,7 @@ func (c FCApiClient) CallPrivateNewJSONSchema(schema string, schemaName string, 
 		"schema": %s
 	}`, schemaName, utils.StringifyJSON(schema))
 
-	urlTemplate := fmt.Sprintf(SCHENAS_URL_TEMPLATE, projectID)
+	urlTemplate := fmt.Sprintf(SCHEMAS_URL_TEMPLATE, projectID)
 
 	response, e := c.callPrivateAPIPost("%s"+urlTemplate, payload)
 	if e != nil {

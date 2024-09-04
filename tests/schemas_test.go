@@ -81,3 +81,68 @@ func TestSchemaCRUD(t *testing.T) {
 		"--return-id"})
 	assert.NotEmpty(t, e)
 }
+
+func TestSchemaGetter(t *testing.T) {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Println(".env file not found in current directory")
+	}
+
+	schemaID, testSchemaIDExists := os.LookupEnv("TEST_DATA_TEST_SCHEMA_ID")
+	if !testSchemaIDExists {
+		panic("TEST_DATA_TEST_PROJECT_ID not set")
+	}
+
+	schemaName, testSchemaNameExists := os.LookupEnv("TEST_DATA_TEST_SCHEMA_NAME")
+	if !testSchemaNameExists {
+		panic("TEST_DATA_TEST_SCHEMA_NAME not set")
+	}
+
+	app := common.GetAssembledApp()
+
+	// Capture the output
+	var output bytes.Buffer
+	var errOutput bytes.Buffer
+	app.Writer = &output
+	app.ErrWriter = &errOutput
+	app.ExitErrHandler = func(cCtx *cli.Context, err error) {
+		fmt.Println(err)
+	}
+
+	// Truncate existing files
+	customFileNamePath := "custom_schema_name.json"
+	defaultFileNamePath := fmt.Sprintf("%s.json", schemaName)
+	os.Remove(customFileNamePath)
+	os.Remove(defaultFileNamePath)
+
+	// Test 1: Get schema by ID and print to console
+	e := utils.CaptureSucessfulClIActionOutput(app.Run, []string{"cmd", "get-schema",
+		"--schema-id", schemaID})
+	assert.Contains(t, e, "schema")
+
+	// Test 2: Get schema by ID and write to file with default name
+	_ = utils.CaptureSucessfulClIActionOutput(app.Run, []string{"cmd", "get-schema",
+		"--schema-id", schemaID,
+		"--to-file", "1"})
+	content, err := os.ReadFile(defaultFileNamePath)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, content)
+
+	// Test 3: Get schema by ID and write to file with specified name
+	_ = utils.CaptureSucessfulClIActionOutput(app.Run, []string{"cmd", "get-schema",
+		"--schema-id", schemaID,
+		"--to-file-with-name", customFileNamePath})
+	content, err = os.ReadFile(customFileNamePath)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, content)
+
+	os.Remove(customFileNamePath)
+	os.Remove(defaultFileNamePath)
+
+	//// Test 4: Get schema by ID and return as API response
+	e = utils.CaptureSucessfulClIActionOutput(app.Run, []string{"cmd", "get-schema",
+		"--schema-id", schemaID,
+		"--api-response"})
+	assert.Contains(t, e, "schema")
+}
