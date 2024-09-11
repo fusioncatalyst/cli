@@ -6,3 +6,9 @@ test_projects_crud:
 
 test_schemas_crud:
 	go test -v ./tests/schemas_test.go
+
+release:
+	goreleaser release --clean
+
+release_check:
+	goreleaser check

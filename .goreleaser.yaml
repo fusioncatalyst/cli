@@ -1,0 +1,62 @@
+version: 2
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    -
+builds:
+  - id: fsnctlst
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+      - freebsd
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - "-s -w"
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+
+nfpms:
+  - id: fsnctlst
+    package_name: fsnctlst
+    vendor: fusioncatalyst.io
+    homepage: https://fusioncatalyst.io/
+    maintainer: fusioncatalyst.io
+    description: |-
+      fusioncatalyst CLI is a tool for managing data contracts
+      and AI prompts in asynchronous server-side software systems.
+      It relies on the fusioncatalyst API to manage data contracts.
+    formats:
+      - apk
+      - deb
+      - rpm
+      - termux.deb
+      - archlinux
+
+brews:
+  - name: fsnctlst
+    repository:
+      owner: fusioncatalyst
+      name: osx-apps
+    description: "fusioncatalyst CLI is a tool for managing data contracts and AI prompts."
+    test: |
+      system "#{bin}/fsnctlst --version"
+    install: |
+      bin.install "fsnctlst"
